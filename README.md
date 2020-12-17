@@ -1,2 +1,10 @@
-# Thresholding_sc
-Selecting a threshold for calling gene expression in single-cell data
+# Thresholding single-cell RNA-Seq data
+Selecting a threshold for calling gene expression in single-cell data.
+
+Rationale: given single-cell gene expression data, we need a method to call expression and generate a binary matrix of yes/no expression of gene x in cell type y. *C. elegans* neurons offr us a unique opportunity to answer that question, as we do have access to high-quality, detailed, expressoin data in every single neuron for a set of genes (see Table S5 of the paper). We can thus use this "ground truth" to evaluate our thresholding methods; a good method is one that predicts the expression pattern we observe in practice.
+
+We explored several ways to summarize and normalize the data (see `compare_metrics.R`), and selected thresholding by percentile on the proportion of cells within a cluster with at least 1 UMI detected for that gene as the metric with the best predictive power. From there, we could compute the measured True Positive Rate and False Discovery Rate for a set of thresholding percentiles, and plot the Precision-Recall curve (see `ROC_PR_bootstrap.R`, we use bootstrapping to evaluate the uncertainty in our estimates). This curve enables us to visualize the tradeoff between the risk of False Negative (calling unexpressed a gene that was shown to be expressed through fluorescent reporters), and False Positives (calling expressed a gene that was shown not to be expressed).
+
+We selected 4 threshold levels offering different tradeoffs, from threshold "1", the most permissive (capturing more True Positives at the expense of more False Positives), to "4", the most restrictive (avoiding False Positives, with a risk of missing some True Positives). The threshold level "2" represents a good compromise for most applications. The thresholded matrices are available [on the website](http://www.cengen.org/downloads/).
+
+Finally, `each_cell_type.R` applies this approach separately for each neuron type, and relates it to the number of cells in the corresponding cluster.
